@@ -1,0 +1,48 @@
+.background {
+}
+
+#project-grid {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-gap: 10px;
+	height: 100%;
+}
+
+.project-box {
+	background-color: #444;
+	color: #fff;
+	border-radius: 5px;
+	padding: 20px;
+}
+
+.project-coming-soon {
+	background-color: #222;
+	color: #fff;
+	border-radius: 5px;
+	padding: 20px;
+	padding-bottom: 100px;
+}
+
+.project-box:hover {
+	background-color: #1db954;
+}
+
+.pba {
+	grid-column: 1 / 3;
+	grid-row: 1;
+}
+
+.pbb {
+	grid-column: 3;
+	grid-row: 1 / 3;
+}
+
+.pbc {
+	grid-column: 1;
+	grid-row: 2;
+}
+
+.pbd {
+	grid-column: 2;
+	grid-row: 2;
+}

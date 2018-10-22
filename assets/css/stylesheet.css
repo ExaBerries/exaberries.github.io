@@ -1,0 +1,60 @@
+* {
+	box-sizing: border-box;
+}
+
+html {
+	height: 100%
+}
+
+body {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.background {
+	height: 100%;
+	text-align: center;
+	display: block;
+	left: 0;
+	top: 0;
+	position: fixed;
+	right: 0;
+	z-index: 1;
+}
+
+.content {
+	top: 10px;
+	left: 0;
+	position: fixed;
+	margin-left: 20px;
+	margin-right: 20px;
+	right: 0;
+	z-index: 2;
+	padding: 0 10px;
+}
+
+.blur4 {
+	display: block;
+	-webkit-filter: blur(4px);
+	-moz-filter: blur(4px);
+	-o-filter: blur(4px);
+	-ms-filter: blur(4px);
+	filter: blur(4px);
+}
+
+.blur8 {
+	display: block;
+	-webkit-filter: blur(8px);
+	-moz-filter: blur(8px);
+	-o-filter: blur(8px);
+	-ms-filter: blur(8px);
+	filter: blur(8px);
+}
+
+.blur16 {
+	display: block;
+	-webkit-filter: blur(16px);
+	-moz-filter: blur(16px);
+	-o-filter: blur(16px);
+	-ms-filter: blur(16px);
+	filter: blur(16px);
+}
