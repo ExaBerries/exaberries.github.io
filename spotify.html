@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+		<title>ExaBerries - Spotify Profiler</title>
+		<link rel="stylesheet" href="assets/css/stylesheet.css">
+		<link rel="stylesheet" href="assets/css/spotify.css">
+		<link rel="stylesheet" href="assets/css/spotify-background.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/spotify.js"></script>
+		<script src="assets/js/spotify-background.js"></script>
+	</head>
+	<body class="no-scroll">
+		<div class="background">
+			<div id="auth-background">
+				<div style="background-color: #1db954;z-index: -2;width: 100%;height: 100%;position: absolute;top: 0;"></div>
+				<div>
+					<canvas id="back-chart-0" class="background-auth-chart" width="200" height="100"></canvas>
+					<canvas id="back-chart-1" class="background-auth-chart" width="100" height="100"></canvas>
+					<canvas id="back-chart-2" class="background-auth-chart" width="100" height="100"></canvas>
+					<canvas id="back-chart-3" class="background-auth-chart" width="100" height="200"></canvas>
+					<canvas id="back-chart-4" class="background-auth-chart" width="100" height="100"></canvas>
+					<canvas id="back-chart-5" class="background-auth-chart" width="100" height="100"></canvas>
+					<canvas id="back-chart-6" class="background-auth-chart" width="100" height="100"></canvas>
+					<canvas id="back-chart-7" class="background-auth-chart" width="100" height="100"></canvas>
+					<div id="angled"></div>
+				</div>
+				<script>createBackgroundCharts()</script>
+			</div>
+		</div>
+		<div class="content">
+			<div id="auth">
+				<h1 style="font-size: 400%">Spotify Profiler</h1>
+				<h1>Log in to get started</h1>
+				<button class="btn-dark" onClick="auth()">Log In</button>
+			</div>
+			<div id="content" style="display: none">
+				<div id="username"></div>
+				<div>
+					<canvas id="songsperyear"></canvas>
+					<div id="songslist"></div>
+				</div>
+				<script>createSongChart()</script>
+			</div>
+		</div>
+		<script>checkAuth()</script>
+	</body>
+</html>

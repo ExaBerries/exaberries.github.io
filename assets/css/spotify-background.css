@@ -1,0 +1,68 @@
+.background {
+	background-color: #fff;
+	height: 100%;
+}
+
+#auth-background {
+	height: 100%;
+}
+
+#angled {
+	background-color: #fff;
+	width: 46%;
+	height: 120%;
+	margin-left: 0;
+	margin-top: 0;
+	padding: 5% 20px;
+	padding-top: 0;
+	position: absolute;
+	top: -10%;
+	transform: rotate(8deg);
+	box-shadow: 5px 10px 2px;
+	z-index: -1;
+}
+
+.background-auth-chart {
+	opacity: 0.64;
+	position: absolute;
+}
+
+#back-chart-0 {
+	top: 10%;
+	left: 12%;
+}
+
+#back-chart-1 {
+	top: 1%;
+	left: 42%;
+}
+
+#back-chart-2 {
+	top: 40%;
+	left: 1%;
+}
+
+#back-chart-3 {
+	top: 70%;
+	left: 28%;
+}
+
+#back-chart-4 {
+	top: 72%;
+	left: 6%;
+}
+
+#back-chart-5 {
+	top: 42%;
+	left: 38%;
+}
+
+#back-chart-6 {
+	top: 1%;
+	left: 4%;
+}
+
+#back-chart-7 {
+	top: 50%;
+	left: 20%;
+}
