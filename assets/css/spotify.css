@@ -40,3 +40,16 @@ button:hover {
 .no-scroll {
 	overflow: hidden;
 }
+
+#songslist {
+	display: grid;
+	grid-template-columns: auto auto auto auto;
+	grid-gap: 10px;
+	height: 100%;
+}
+
+.album-box {
+	background-color: #0da944;
+	color: #fff;
+	padding: 20px;
+}

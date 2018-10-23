@@ -1,6 +1,7 @@
 var chart = {};
 var stats = {
 	trackData: {},
+	albumData: {},
 	count: 0,
 	minYear: 2100,
 	maxYear: 0
@@ -125,6 +126,18 @@ function processTrack(accessToken, track) {
 		} else if (year > stats.maxYear) {
 			stats.maxYear = year;
 		}
+		if (!(track.album.name in stats.albumData)) {
+			stats.albumData[track.album.name] = {
+				name: track.album.name,
+				year: year,
+				imgURL: track.album.images[1].url,
+				songs: [track.name]
+			};
+		} else {
+			if (!(track.name in stats.albumData[track.album.name].songs)) {
+				stats.albumData[track.album.name].songs.push(track.name);
+			}
+		}
 		stats.count++;
 	}
 }
@@ -132,6 +145,9 @@ function processTrack(accessToken, track) {
 function redirectToSpotifyAuth() {
 	var clientID = "5f12eddb812a4069bd02d409e8e9714b";
 	var redirectURI = $(location).attr('href');
+	if (redirectURI.includes("#")) {
+		redirectURI = $(location).attr('href').split("#")[0];
+	}
 	var authURL = "https://accounts.spotify.com/authorize?client_id=" + clientID + "&redirect_uri=" + redirectURI + "&scope=user-read-private%20user-read-email%20user-library-read&response_type=token&state=123";
 	$(location).attr('href', authURL);
 }
@@ -174,10 +190,10 @@ function renderSongChart(stats) {
 	var chartData = [];
 	var chartBackgroundColors = [];
 	var chartBorderColors = [];
-	for (var i = 0; i < stats.maxYear - stats.minYear; i++) {
+	for (var i = 0; i <= stats.maxYear - stats.minYear; i++) {
 		chartLabels[i] = stats.minYear + i;
-		chartBackgroundColors[i] = 'rgba(75, 192, 192, 0.2)';
-		chartBorderColors[i] = 'rgba(75, 192, 192, 1)';
+		chartBackgroundColors[i] = 'rgba(13, 169, 68, 0.8)';
+		chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
 		chartData[i] = 0;
 	}
 	for (var key in stats.trackData) {
@@ -191,11 +207,24 @@ function renderSongChart(stats) {
 }
 
 function listSongs(year) {
-	var str = "";
-	for (var key in stats.trackData) {
-		if (stats.trackData[key].year == year) {
-			str += stats.trackData[key].name + " ";
+	$("#songslist").html("");
+	console.log(stats.albumData);
+	for (var key in stats.albumData) {
+		if (stats.albumData[key].year == year) {
+			var box = $("<div>", {class: "album-box"});
+			box.text(stats.albumData[key].name);
+			box.append($("<br/>"));
+			box.append($("<br/>"));
+			var img = $("<img>");
+			img.attr('src', stats.albumData[key].imgURL);
+			box.append(img);
+			var list = $("<ol>");
+			for (var i = 0; i < stats.albumData[key].songs.length; i++) {
+				console.log(stats.albumData[key].songs[i]);
+				list.append($("<li>").text(stats.albumData[key].songs[i]));
+			}
+			box.append(list);
+			$("#songslist").append(box);
 		}
 	}
-	$("#songslist").text(str);
 }
