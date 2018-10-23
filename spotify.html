@@ -39,11 +39,18 @@
 				<h1 id="username"></h1>
 				<div>
 					<canvas id="songsperyear"></canvas>
+					<h2>Songs:</h2>
 					<div id="songslist"></div>
 				</div>
 				<script>createSongChart()</script>
 			</div>
 		</div>
+		<footer style="display: none">
+			<ul>
+				<li onClick="$(location).attr('href', '//' + $(location).attr('href').split('/')[2]);">exaberries.github.io</li>
+				<li>spotify profiler</li>
+			</ul>
+		</footer>
 		<script>checkAuth()</script>
 	</body>
 </html>

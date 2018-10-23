@@ -20,6 +20,7 @@ function checkAuth() {
 				$("#auth").hide();
 				$("#auth-background").html("");
 				$("body").removeClass("no-scroll");
+				$("footer").show();
 				run();
 			}
 		});
@@ -208,7 +209,6 @@ function renderSongChart(stats) {
 
 function listSongs(year) {
 	$("#songslist").html("");
-	console.log(stats.albumData);
 	for (var key in stats.albumData) {
 		if (stats.albumData[key].year == year) {
 			var box = $("<div>", {class: "album-box"});

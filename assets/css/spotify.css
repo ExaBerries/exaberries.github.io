@@ -29,6 +29,33 @@ button:hover {
 	background-color: #0da944;
 }
 
+footer {
+	width: 100%;
+	margin-top: 1%;
+}
+
+footer ul {
+	list-style-type: none;
+	background-color: #000;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	margin: 0;
+}
+
+footer li {
+	color: white;
+	background-color: #000;
+	display: inline;
+	padding-left: 4%;
+	padding-right: 4%;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+footer li:hover {
+	background-color: #222;
+}
+
 .btn-dark {
 	background-color: #191414;
 }
