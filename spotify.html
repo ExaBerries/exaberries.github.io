@@ -8,8 +8,10 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 		<script src="assets/js/util.js"></script>
-		<script src="assets/js/spotify.js"></script>
-		<script src="assets/js/spotify-background.js"></script>
+		<script src="assets/js/spotify/spotify.js"></script>
+		<script src="assets/js/spotify/spotify-auth.js"></script>
+		<script src="assets/js/spotify/spotify-load.js"></script>
+		<script src="assets/js/spotify/spotify-background.js"></script>
 	</head>
 	<body class="no-scroll">
 		<div class="background">
@@ -38,6 +40,7 @@
 			<div id="content" style="display: none">
 				<h1 id="username"></h1>
 				<div>
+					<div id="filter-songs"></div>
 					<canvas id="songsperyear"></canvas>
 					<h2>Songs:</h2>
 					<div id="songslist"></div>
