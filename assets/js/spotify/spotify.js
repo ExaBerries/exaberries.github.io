@@ -1,16 +1,56 @@
 var chart = {};
-var songFilters = [];
-var currentListSongsYear = 0;
+var currentListSongsYear = -1;
 
 function run() {
 	if (hasParam("access_token")) {
 		var accessToken = getParam('access_token');
 		console.log("accessToken=" + accessToken);
 		getInfo(accessToken);
+		refilter();
 	} else {
 		console.log("no access token");
 		redirectToSpotifyAuth();
 	}
+}
+
+function render() {
+	renderGeneralStats();
+	renderChrologicalStats();
+}
+
+function renderGeneralStats() {
+	$("#num-songs").text(filteredStats.numSongs + " songs");
+	$("#num-albums").text(filteredStats.numAlbums + " albums");
+}
+
+function renderChrologicalStats() {
+	renderSongChart();
+	listSongs(currentListSongsYear);
+	var yearData = [];
+	var weightedMeanYear = 0;
+	var yearStdev = 0;
+	for (var year = filteredStats.minYear; year < filteredStats.maxYear; year++) {
+		yearData[year] = 0;
+	}
+	for (var i = 0; i < filteredStats.songs.length; i++) {
+		var id = filteredStats.songs[i];
+		yearData[stats.trackData[id].year]++;
+	}
+	var totalWeight = 0;
+	for (var year = filteredStats.minYear; year < filteredStats.maxYear; year++) {
+		var weight = yearData[year];
+		weightedMeanYear += year * weight;
+		totalWeight += weight;
+	}
+	weightedMeanYear /= totalWeight;
+	weightedMeanYear = Math.round(weightedMeanYear);
+	var sumOfSquares = 0;
+	for (var year = filteredStats.minYear; year < filteredStats.maxYear; year++) {
+		sumOfSquares += Math.pow(year - weightedMeanYear, 2);
+	}
+	yearStdev = Math.sqrt(sumOfSquares / (filteredStats.maxYear - filteredStats.minYear));
+	$("#weighted-mean-year").text("weighted mean year " + weightedMeanYear);
+	$("#year-stdev").text("standard deviation " + yearStdev);
 }
 
 function createSongChart() {
@@ -50,16 +90,14 @@ function renderSongChart() {
 	var chartData = [];
 	var chartBackgroundColors = [];
 	var chartBorderColors = [];
-	for (var i = 0; i <= stats.maxYear - stats.minYear; i++) {
-		chartLabels[i] = stats.minYear + i;
+	for (var i = 0; i <= filteredStats.maxYear - filteredStats.minYear; i++) {
+		chartLabels[i] = filteredStats.minYear + i;
 		chartBackgroundColors[i] = 'rgba(13, 169, 68, 0.8)';
 		chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
 		chartData[i] = 0;
 	}
-	for (var id in stats.trackData) {
-		if (!isFiltered(stats.trackData[id])) {
-			chartData[stats.trackData[id].year - stats.minYear]++;
-		}
+	for (var id in filteredStats.songs) {
+		chartData[stats.trackData[id].year - stats.minYear]++;
 	}
 	chart.data.labels = chartLabels;
 	chart.data.datasets[0].data = chartData;
@@ -69,25 +107,26 @@ function renderSongChart() {
 }
 
 function listSongs(year) {
+	if (year == -1) {
+		year = filteredStats.maxYear;
+	}
 	currentListSongsYear = year;
 	$("#songslist").html("");
-	for (var id in stats.albumData) {
+	$("#songslist-header").text(year + " Songs")
+	for (var i = 0; i < filteredStats.albums.length; i++) {
+		var id = filteredStats.albums[i];
 		if (stats.albumData[id].year == year) {
-			if (!isFiltered(stats.albumData[id])) {
-				var box = $("<div>", {class: "album-box"});
-				box.append($("<h2>", {text: stats.albumData[id].name}));
-				var img = $("<img>");
-				img.attr('src', stats.albumData[id].imgURL);
-				box.append(img);
-				var list = $("<ol>");
-				for (var i = 0; i < stats.albumData[id].songs.length; i++) {
-					if (!isFiltered(stats.trackData[stats.albumData[id].songs[i]])) {
-						list.append($("<li>").text(stats.trackData[stats.albumData[id].songs[i]].name));
-					}
-				}
-				box.append(list);
-				$("#songslist").append(box);
+			var box = $("<div>", {class: "album-box"});
+			box.append($("<h2>", {text: stats.albumData[id].name}));
+			var img = $("<img>");
+			img.attr('src', stats.albumData[id].imgURL);
+			box.append(img);
+			var list = $("<ol>");
+			for (var j = 0; j < stats.albumData[id].songs.length; j++) {
+				list.append($("<li>").text(stats.trackData[stats.albumData[id].songs[j]].name));
 			}
+			box.append(list);
+			$("#songslist").append(box);
 		}
 	}
 }
@@ -104,26 +143,8 @@ function createFilterButton(name) {
 			btn.addClass("toggle-btn-off");
 			songFilters.splice($.inArray(name, songFilters), 1);
 		}
-		renderSongChart();
-		if (currentListSongsYear != 0) {
-			listSongs(currentListSongsYear);
-		}
+		refilter();
+		render();
 	});
 	$("#filter-songs").append(btn);
-}
-
-function isFiltered(thing) {
-	if (songFilters.length == 0) {
-		return false;
-	}
-	var numMatched = 0;
-	for (var i = 0; i < songFilters.length; i++) {
-		for (var j = 0; j < thing.sources.length; j++) {
-			if (songFilters[i] == thing.sources[j]) {
-				numMatched++;
-				break;
-			}
-		}
-	}
-	return (numMatched >= thing.sources.length);
 }

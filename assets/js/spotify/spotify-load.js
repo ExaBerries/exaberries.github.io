@@ -1,10 +1,18 @@
 var stats = {
 	trackData: [],
 	albumData: [],
-	count: 0,
-	minYear: 2100,
+	minYear: 2112,
 	maxYear: 0
 };
+var filteredStats = {
+	songs: [],
+	album: [],
+	minYear: 2112,
+	maxYear: 0,
+	numSongs: 0,
+	numAlbums: 0
+};
+var songFilters = [];
 var currentTrackID = 0;
 var currentAlbumID = 0;
 
@@ -39,7 +47,8 @@ function processLibrary(accessToken, numSearched) {
 				processTrack(accessToken, response.items[i].track, "Library");
 				numSearched++;
 			}
-			renderSongChart();
+			refilter();
+			render();
 			if (numSearched < response.total) {
 				processLibrary(accessToken, numSearched);
 			}
@@ -74,7 +83,8 @@ function processPlaylistTracks(accessToken, playlistID, numSearched, name) {
 				processTrack(accessToken, response.items[i].track, name);
 				numSearched++;
 			}
-			renderSongChart();
+			refilter();
+			render();
 			if (numSearched < response.total) {
 				processPlaylistTracks(accessToken, playlistID, numSearched, name);
 			}
@@ -98,6 +108,7 @@ function processTrack(accessToken, track, source) {
 			sources: [source],
 			songs: [currentTrackID]
 		};
+		stats.albumCount++;
 	} else {
 		getAlbumData(track.album.name, track.artists[0].name).sources.push(source);
 	}
@@ -119,7 +130,7 @@ function processTrack(accessToken, track, source) {
 		if ($.inArray(currentTrackID - 1, albumData.songs) == -1) {
 			albumData.songs.push(currentTrackID - 1);
 		}
-		stats.count++;
+		stats.songCount++;
 	} else {
 		getTrackData(track.name, track.album.name, track.artists[0].name).sources.push(source);
 	}
@@ -143,4 +154,49 @@ function getAlbumData(name, artist) {
 		}
 	}
 	return undefined;
+}
+
+function refilter() {
+	filteredStats = {
+		songs: [],
+		albums: [],
+		minYear: 2112,
+		maxYear: 0,
+		numSongs: 0,
+		numAlbums: 0
+	};
+	for (var i = 0; i < stats.trackData.length; i++) {
+		if (!isFiltered(stats.trackData[i])) {
+			filteredStats.songs.push(i);
+			var year = stats.trackData[i].year;
+			if (year < filteredStats.minYear) {
+				filteredStats.minYear = year;
+			} else if (year > filteredStats.maxYear) {
+				filteredStats.maxYear = year;
+			}
+			filteredStats.numSongs++;
+		}
+	}
+	for (var i = 0; i < stats.albumData.length; i++) {
+		if (!isFiltered(stats.trackData[i])) {
+			filteredStats.albums.push(i);
+			filteredStats.numAlbums++;
+		}
+	}
+}
+
+function isFiltered(thing) {
+	if (songFilters.length == 0) {
+		return false;
+	}
+	var numMatched = 0;
+	for (var i = 0; i < songFilters.length; i++) {
+		for (var j = 0; j < thing.sources.length; j++) {
+			if (songFilters[i] == thing.sources[j]) {
+				numMatched++;
+				break;
+			}
+		}
+	}
+	return (numMatched >= thing.sources.length);
 }

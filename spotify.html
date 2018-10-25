@@ -40,12 +40,23 @@
 			<div id="content" style="display: none">
 				<h1 id="username"></h1>
 				<div>
+					<h2>Filters</h2>
 					<div id="filter-songs"></div>
-					<canvas id="songsperyear"></canvas>
-					<h2>Songs:</h2>
-					<div id="songslist"></div>
 				</div>
-				<script>createSongChart()</script>
+				<div>
+					<h2>General Stats</h2>
+					<h4 id="num-songs"></h2>
+					<h4 id="num-albums"></h2>
+				</div>
+				<div>
+					<h2>Chronological Breakdown</h2>
+					<h4 id="weighted-mean-year"></h4>
+					<h4 id="year-stdev"></h4>
+					<canvas id="songsperyear"></canvas>
+					<h3 id="songslist-header">Songs:</h3>
+					<div id="songslist"></div>
+					<script>createSongChart()</script>
+				</div>
 			</div>
 		</div>
 		<footer style="display: none">
