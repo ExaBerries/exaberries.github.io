@@ -13,6 +13,9 @@ function checkAuth() {
 				$("body").removeClass("no-scroll");
 				$("footer").show();
 				run();
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr);
 			}
 		});
 	}

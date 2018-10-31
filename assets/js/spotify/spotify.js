@@ -96,8 +96,9 @@ function renderSongChart() {
 		chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
 		chartData[i] = 0;
 	}
-	for (var id in filteredStats.songs) {
-		chartData[stats.trackData[id].year - stats.minYear]++;
+	for (var i = 0; i < filteredStats.songs.length; i++) {
+		var id = filteredStats.songs[i];
+		chartData[stats.trackData[id].year - filteredStats.minYear]++;
 	}
 	chart.data.labels = chartLabels;
 	chart.data.datasets[0].data = chartData;
