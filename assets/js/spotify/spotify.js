@@ -19,8 +19,14 @@ function render() {
 }
 
 function renderGeneralStats() {
+	var totalLength = 0;
+	for (var i = 0; i < filteredStats.songs.length; i++) {
+		totalLength += stats.trackData[filteredStats.songs[i]].duration;
+	}
+	var avgLength = Math.round(totalLength / filteredStats.songs.length);
 	$("#num-songs").text(filteredStats.numSongs + " songs");
 	$("#num-albums").text(filteredStats.numAlbums + " albums");
+	$("#avg-length").text("average song length: " + msToTime(avgLength) + " minutes");
 }
 
 function renderChrologicalStats() {
@@ -124,7 +130,9 @@ function listSongs(year) {
 			box.append(img);
 			var list = $("<ol>");
 			for (var j = 0; j < stats.albumData[id].songs.length; j++) {
-				list.append($("<li>").text(stats.trackData[stats.albumData[id].songs[j]].name));
+				if (filteredStats.songs.includes(stats.albumData[id].songs[j])) {
+					list.append($("<li>").text(stats.trackData[stats.albumData[id].songs[j]].name));
+				}
 			}
 			box.append(list);
 			$("#songslist").append(box);
@@ -148,4 +156,13 @@ function createFilterButton(name) {
 		render();
 	});
 	$("#filter-songs").append(btn);
+}
+
+function msToTime(s) {
+	var ms = s % 1000;
+	s = (s - ms) / 1000;
+	var secs = s % 60;
+	s = (s - secs) / 60;
+	var mins = s % 60;
+	return mins + ':' + (secs < 10 ? "0" : "") + secs;
 }

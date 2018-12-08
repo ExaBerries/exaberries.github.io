@@ -28,9 +28,10 @@ function auth() {
 function redirectToSpotifyAuth() {
 	var clientID = "5f12eddb812a4069bd02d409e8e9714b";
 	var redirectURI = $(location).attr('href');
+	var scopes = "user-read-private%20user-read-email%20user-library-read%20playlist-read-private";
 	if (redirectURI.includes("#")) {
 		redirectURI = $(location).attr('href').split("#")[0];
 	}
-	var authURL = "https://accounts.spotify.com/authorize?client_id=" + clientID + "&redirect_uri=" + redirectURI + "&scope=user-read-private%20user-read-email%20user-library-read&response_type=token&state=123";
+	var authURL = "https://accounts.spotify.com/authorize?client_id=" + clientID + "&redirect_uri=" + redirectURI + "&scope=" + scopes + "&response_type=token&state=123";
 	$(location).attr('href', authURL);
 }

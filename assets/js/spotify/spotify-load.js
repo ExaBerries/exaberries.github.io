@@ -4,17 +4,19 @@ var stats = {
 	minYear: 2112,
 	maxYear: 0
 };
-var filteredStats = {
-	songs: [],
-	album: [],
-	minYear: 2112,
-	maxYear: 0,
-	numSongs: 0,
-	numAlbums: 0
-};
+var filteredStats = new FilteredStats();
 var songFilters = [];
 var currentTrackID = 0;
 var currentAlbumID = 0;
+
+function FilteredStats() {
+	this.songs = [];
+	this.albums = [];
+	this.minYear = 2112;
+	this.maxYear = 0;
+	this.numSongs = 0;
+	this.numAlbums = 0;
+}
 
 function getInfo(accessToken) {
 	$.ajax({
@@ -58,11 +60,12 @@ function processLibrary(accessToken, numSearched) {
 
 function processPlaylists(accessToken, usrID) {
 	$.ajax({
-		url: 'https://api.spotify.com/v1/users/' + usrID + '/playlists',
+		url: 'https://api.spotify.com/v1/me/playlists',
 		headers: {
 			'Authorization': 'Bearer ' + accessToken
 		},
 		success: function(response) {
+			console.log(response);
 			for (var i = 0; i < response.items.length; i++) {
 				var playlistID = response.items[i].id;
 				processPlaylistTracks(accessToken, playlistID, 0, response.items[i].name);
@@ -157,14 +160,7 @@ function getAlbumData(name, artist) {
 }
 
 function refilter() {
-	filteredStats = {
-		songs: [],
-		albums: [],
-		minYear: 2112,
-		maxYear: 0,
-		numSongs: 0,
-		numAlbums: 0
-	};
+	filteredStats = new FilteredStats();
 	for (var i = 0; i < stats.trackData.length; i++) {
 		if (!isFiltered(stats.trackData[i])) {
 			filteredStats.songs.push(i);
@@ -178,7 +174,15 @@ function refilter() {
 		}
 	}
 	for (var i = 0; i < stats.albumData.length; i++) {
-		if (!isFiltered(stats.trackData[i])) {
+		var filtered = true;
+		console.log(stats.albumData[i]);
+		for (var j = 0; j < stats.albumData[i].songs.length; j++) {
+			if (!isFiltered(stats.trackData[stats.albumData[i].songs[j]])) {
+				filtered = false;
+				break;
+			}
+		}
+		if (!filtered) {
 			filteredStats.albums.push(i);
 			filteredStats.numAlbums++;
 		}
