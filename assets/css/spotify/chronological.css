@@ -1,0 +1,27 @@
+#songslist {
+	display: grid;
+	grid-template-columns: auto auto auto auto;
+	grid-gap: 10px;
+	height: 100%;
+}
+
+.album-box {
+	background-color: #0da944;
+	color: #fff;
+	padding: 20px;
+	text-align: center;
+}
+
+.album-box h2 {
+	margin: 0;
+	margin-bottom: 0.64em;
+}
+
+.album-box img {
+	width: 100%;
+}
+
+.album-box ol {
+	list-style-position: inside;
+	padding: 0;
+}
