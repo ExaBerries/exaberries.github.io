@@ -25,7 +25,6 @@ function getInfo(accessToken) {
 			'Authorization': 'Bearer ' + accessToken
 		},
 		success: function(response) {
-			console.log(response);
 			$("#username").text(response.display_name);
 			var usrID = response.id;
 			processLibrary(accessToken, 0);
@@ -65,7 +64,6 @@ function processPlaylists(accessToken, usrID) {
 			'Authorization': 'Bearer ' + accessToken
 		},
 		success: function(response) {
-			console.log(response);
 			for (var i = 0; i < response.items.length; i++) {
 				var playlistID = response.items[i].id;
 				processPlaylistTracks(accessToken, playlistID, 0, response.items[i].name);
@@ -106,7 +104,7 @@ function processTrack(accessToken, track, source) {
 		stats.albumData[currentAlbumID++] = {
 			name: track.album.name,
 			year: year,
-			imgURL: track.album.images[1].url,
+			imgURL: track.album.images[0].url,
 			artists: artists,
 			sources: [source],
 			songs: [currentTrackID]
@@ -175,7 +173,6 @@ function refilter() {
 	}
 	for (var i = 0; i < stats.albumData.length; i++) {
 		var filtered = true;
-		console.log(stats.albumData[i]);
 		for (var j = 0; j < stats.albumData[i].songs.length; j++) {
 			if (!isFiltered(stats.trackData[stats.albumData[i].songs[j]])) {
 				filtered = false;

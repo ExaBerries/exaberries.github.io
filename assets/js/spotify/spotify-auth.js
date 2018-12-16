@@ -8,6 +8,7 @@ function checkAuth() {
 			},
 			success: function(response) {
 				$("#content").show();
+				$("#filter-songs").show();
 				$("#auth").hide();
 				$("#auth-background").html("");
 				$("body").removeClass("no-scroll");

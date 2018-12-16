@@ -12,6 +12,45 @@ body {
 
 .content {
 	overflow: scroll;
+	margin-left: 0;
+}
+
+#content {
+	margin-left: 22%;
+	width: 78%;
+}
+
+#filter-songs {
+	text-align: center;
+	z-index: 2;
+	position: fixed;
+	height: 100%;
+	width: 20%;
+	margin: 0;
+	top: 0;
+	left: 0;
+	background-color: #000;
+}
+
+#filter-songs ul {
+	margin-left: 0;
+	left: 0;
+	padding-left: 0;
+}
+
+#filter-songs ul li {
+	margin-left: 0;
+	left: 0;
+	padding-left: 0;
+}
+
+#filter-songs ul li button {
+	margin: 2%;
+	width: 100%;
+}
+
+#filter-songs h2 {
+	color: white;
 }
 
 button {
@@ -87,17 +126,13 @@ footer li:hover {
 	margin-bottom: 0.64em;
 }
 
+.album-box img {
+	width: 100%;
+}
+
 .album-box ol {
 	list-style-position: inside;
 	padding: 0;
-}
-
-#filter-songs {
-	text-align: center;
-}
-
-#filter-songs button {
-	margin: 2%;
 }
 
 .toggle-btn-on {

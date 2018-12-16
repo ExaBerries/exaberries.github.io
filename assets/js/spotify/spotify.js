@@ -155,7 +155,9 @@ function createFilterButton(name) {
 		refilter();
 		render();
 	});
-	$("#filter-songs").append(btn);
+	var listItem = $("<li>");
+	listItem.append(btn);
+	$("#filter-songs-buttons").append(listItem);
 }
 
 function msToTime(s) {
