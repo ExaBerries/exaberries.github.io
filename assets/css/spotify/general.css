@@ -1,0 +1,38 @@
+#general {
+	padding-left: 4%;
+	padding-right: 4%;
+	/*height: 80vh;*/
+}
+
+#general-grid {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-gap: 10px;
+}
+
+#general-grid div {
+	background-color: #222;
+	color: #fff;
+	padding: 20px;
+	margin: 0;
+}
+
+#num-songs {
+	grid-column: 1 / 4;
+	grid-row: 1;
+}
+
+#num-albums {
+	grid-column: 4;
+	grid-row: 1 / 4;
+}
+
+#num-artists {
+	grid-column: 1;
+	grid-row: 2 / 4;
+}
+
+#avg-length {
+	grid-column: 2 / 4;
+	grid-row: 2 / 4;
+}

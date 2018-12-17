@@ -24,9 +24,25 @@ function renderGeneralStats() {
 		totalLength += stats.trackData[filteredStats.songs[i]].duration;
 	}
 	var avgLength = Math.round(totalLength / filteredStats.songs.length);
-	$("#num-songs").text(filteredStats.numSongs + " songs");
-	$("#num-albums").text(filteredStats.numAlbums + " albums");
-	$("#avg-length").text("average song length: " + msToTime(avgLength) + " minutes");
+	$("#num-songs-stat").text(filteredStats.numSongs);
+	if (filteredStats.numSongs.length != 1) {
+		$("#num-songs-txt").text(" songs");
+	} else {
+		$("#num-songs-txt").text(" song");
+	}
+	$("#num-albums-stat").text(filteredStats.numAlbums);
+	if (filteredStats.numAlbums.length != 1) {
+		$("#num-albums-txt").text(" albums");
+	} else {
+		$("#num-albums-txt").text(" album");
+	}
+	$("#num-artists-stat").text(filteredStats.numArtists);
+	if (filteredStats.numArtists.length != 1) {
+		$("#num-artists-txt").text(" artists");
+	} else {
+		$("#num-artists-txt").text(" artist");
+	}
+	$("#avg-length-stat").text(msToTime(avgLength));
 }
 
 function renderChrologicalStats() {

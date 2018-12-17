@@ -1,21 +1,28 @@
 var stats = {
 	trackData: [],
 	albumData: [],
+	artistData: [],
 	minYear: 2112,
-	maxYear: 0
+	maxYear: 0,
+	songCount: 0,
+	albumCount: 0,
+	artistCount: 0
 };
 var filteredStats = new FilteredStats();
 var songFilters = [];
 var currentTrackID = 0;
 var currentAlbumID = 0;
+var currentArtistID = 0;
 
 function FilteredStats() {
 	this.songs = [];
 	this.albums = [];
+	this.artists = [];
 	this.minYear = 2112;
 	this.maxYear = 0;
 	this.numSongs = 0;
 	this.numAlbums = 0;
+	this.numArtists = 0;
 }
 
 function getInfo(accessToken) {
@@ -73,7 +80,7 @@ function processPlaylists(accessToken, usrID) {
 	});
 }
 
-function processPlaylistTracks(accessToken, playlistID, numSearched, name) {
+function processPlaylistTracks(accessToken, playlistID, numSearched, source) {
 	$.ajax({
 		url: 'https://api.spotify.com/v1/playlists/' + playlistID + '/tracks',
 		headers: {
@@ -81,13 +88,13 @@ function processPlaylistTracks(accessToken, playlistID, numSearched, name) {
 		},
 		success: function(response) {
 			for (var i = 0; i < response.items.length; i++) {
-				processTrack(accessToken, response.items[i].track, name);
+				processTrack(accessToken, response.items[i].track, source);
 				numSearched++;
 			}
 			refilter();
 			render();
 			if (numSearched < response.total) {
-				processPlaylistTracks(accessToken, playlistID, numSearched, name);
+				processPlaylistTracks(accessToken, playlistID, numSearched, source);
 			}
 		}
 	});
@@ -98,6 +105,27 @@ function processTrack(accessToken, track, source) {
 	var artists = [];
 	for (var i = 0; i < track.artists.length; i++) {
 		artists.push(track.artists[i].name);
+		var containsArtist = (typeof(getArtistData(track.artists[i].name)) != "undefined");
+		if (!containsArtist) {
+			stats.artistData[currentArtistID++] = {
+				name: track.artists[i].name,
+				imgURL: '',
+				genres: [],
+				albums: []
+			};
+			stats.artistCount++;
+			$.ajax({
+				url: 'https://api.spotify.com/v1/artists/' + track.artists[i].id,
+				headers: {
+					'Authorization': 'Bearer ' + accessToken
+				},
+				success: function(response) {
+					var artistData = getArtistData(response.name);
+					artistData.genres = response.genres;
+					artistData.imgURL = response.images[0];
+				}
+			});
+		}
 	}
 	var containsAlbum = (typeof(getAlbumData(track.album.name, track.artists[0].name)) != "undefined");
 	if (!containsAlbum) {
@@ -107,9 +135,12 @@ function processTrack(accessToken, track, source) {
 			imgURL: track.album.images[0].url,
 			artists: artists,
 			sources: [source],
-			songs: [currentTrackID]
+			songs: [currentTrackID],
 		};
 		stats.albumCount++;
+		for (var i = 0; i < artists.length; i++) {
+			getArtistData(artists[i]).albums.push(currentAlbumID - 1);
+		}
 	} else {
 		getAlbumData(track.album.name, track.artists[0].name).sources.push(source);
 	}
@@ -157,6 +188,15 @@ function getAlbumData(name, artist) {
 	return undefined;
 }
 
+function getArtistData(name) {
+	for (var i = 0; i < stats.artistData.length; i++) {
+		if (stats.artistData[i].name == name) {
+			return stats.artistData[i];
+		}
+	}
+	return undefined;
+}
+
 function refilter() {
 	filteredStats = new FilteredStats();
 	for (var i = 0; i < stats.trackData.length; i++) {
@@ -182,6 +222,21 @@ function refilter() {
 		if (!filtered) {
 			filteredStats.albums.push(i);
 			filteredStats.numAlbums++;
+		}
+	}
+	for (var i = 0; i < stats.artistData.length; i++) {
+		var filtered = true;
+		for (var j = 0; j < stats.artistData[i].albums.length; j++) {
+			for (var k = 0; k < stats.albumData[stats.artistData[i].albums[j]].songs.length; k++) {
+				if (!isFiltered(stats.trackData[stats.albumData[stats.artistData[i].albums[j]].songs[k]])) {
+					filtered = false;
+					break;
+				}
+			}
+		}
+		if (!filtered) {
+			filteredStats.artists.push(i);
+			filteredStats.numArtists++;
 		}
 	}
 }
