@@ -25,6 +25,8 @@ function FilteredStats() {
 	this.numArtists = 0;
 }
 
+var normalizeVersion = false;
+
 function getInfo(accessToken) {
 	$.ajax({
 		url: 'https://api.spotify.com/v1/me',
@@ -127,10 +129,11 @@ function processTrack(accessToken, track, source) {
 			});
 		}
 	}
-	var containsAlbum = (typeof(getAlbumData(track.album.name, track.artists[0].name)) != "undefined");
+	var albumName = filterAlbumName(track.album.name);
+	var containsAlbum = (typeof(getAlbumData(albumName, track.artists[0].name)) != "undefined");
 	if (!containsAlbum) {
 		stats.albumData[currentAlbumID++] = {
-			name: track.album.name,
+			name: albumName,
 			year: year,
 			imgURL: track.album.images[0].url,
 			artists: artists,
@@ -142,12 +145,13 @@ function processTrack(accessToken, track, source) {
 			getArtistData(artists[i]).albums.push(currentAlbumID - 1);
 		}
 	} else {
-		getAlbumData(track.album.name, track.artists[0].name).sources.push(source);
+		getAlbumData(albumName, track.artists[0].name).sources.push(source);
 	}
-	var containsTrack = (typeof(getTrackData(track.name, track.album.name, track.artists[0].name)) != "undefined");
+	var trackName = filterTrackName(track.name);
+	var containsTrack = (typeof(getTrackData(trackName, albumName, track.artists[0].name)) != "undefined");
 	if (!containsTrack) {
 		stats.trackData[currentTrackID++] = {
-			name: track.name,
+			name: trackName,
 			year: year,
 			duration: track.duration_ms,
 			artists: artists,
@@ -158,13 +162,13 @@ function processTrack(accessToken, track, source) {
 		} else if (year > stats.maxYear) {
 			stats.maxYear = year;
 		}
-		var albumData = getAlbumData(track.album.name, track.artists[0].name);
+		var albumData = getAlbumData(albumName, track.artists[0].name);
 		if ($.inArray(currentTrackID - 1, albumData.songs) == -1) {
 			albumData.songs.push(currentTrackID - 1);
 		}
 		stats.songCount++;
 	} else {
-		getTrackData(track.name, track.album.name, track.artists[0].name).sources.push(source);
+		getTrackData(trackName, albumName, track.artists[0].name).sources.push(source);
 	}
 }
 
@@ -255,4 +259,20 @@ function isFiltered(thing) {
 		}
 	}
 	return (numMatched >= thing.sources.length);
+}
+
+function filterTrackName(name) {
+	if (normalizeVersion) {
+		return name.replace(/\-?\s?\(?(\d\d\d\d)?\s?Remaster(ed)?\s?(Version)?(\d\d\d\d)?\)?/g, "");
+	} else {
+		return name;
+	}
+}
+
+function filterAlbumName(name) {
+	if (normalizeVersion) {
+		return name.replace(/\((Deluxe)?\s?(\d\d\d\d)?\s?Remaster(ed)?\s?(Edition|Version)?\)/g, "").replace(/\(?Deluxe Edition\)?/g, "");
+	} else {
+		return name;
+	}
 }
