@@ -71,8 +71,8 @@ function renderChrologicalStats() {
 		sumOfSquares += Math.pow(year - weightedMeanYear, 2);
 	}
 	yearStdev = Math.sqrt(sumOfSquares / (filteredStats.maxYear - filteredStats.minYear));
-	$("#weighted-mean-year").text("weighted mean year " + weightedMeanYear);
-	$("#year-stdev").text("standard deviation " + yearStdev.toFixed(2));
+	$("#weighted-mean-year-txt").text(weightedMeanYear);
+	$("#year-stdev-txt").text(yearStdev.toFixed(2));
 }
 
 function createSongChart() {

@@ -5,6 +5,19 @@
 	background-color: white;
 }
 
+#chronological-grid {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-gap: 10px;
+}
+
+#chronological-grid div {
+	background-color: #222;
+	color: #fff;
+	padding: 20px;
+	margin: 0;
+}
+
 #songslist {
 	display: grid;
 	grid-template-columns: auto auto auto auto;
