@@ -25,7 +25,7 @@ function FilteredStats() {
 	this.numArtists = 0;
 }
 
-var normalizeVersion = false;
+var normalizeVersion = true;
 
 function getInfo(accessToken) {
 	$.ajax({
@@ -175,7 +175,7 @@ function processTrack(accessToken, track, source) {
 function getTrackData(name, album, artist) {
 	for (var i = 0; i < stats.trackData.length; i++) {
 		for (var j = 0; j < stats.albumData.length; j++) {
-			if (stats.trackData[i].name == name && stats.albumData[j].name == album && $.inArray(artist, stats.trackData[i].artists) != -1 && $.inArray(artist, stats.albumData[j].artists) != -1) {
+			if (stats.trackData[i].name.toUpperCase() == name.toUpperCase() && stats.albumData[j].name.toUpperCase() == album.toUpperCase() && $.inArray(artist, stats.trackData[i].artists) != -1 && $.inArray(artist, stats.albumData[j].artists) != -1) {
 				return stats.trackData[i];
 			}
 		}
@@ -185,7 +185,7 @@ function getTrackData(name, album, artist) {
 
 function getAlbumData(name, artist) {
 	for (var i = 0; i < stats.albumData.length; i++) {
-		if (stats.albumData[i].name == name && $.inArray(artist, stats.albumData[i].artists) != -1) {
+		if (stats.albumData[i].name.toUpperCase() == name.toUpperCase() && $.inArray(artist, stats.albumData[i].artists) != -1) {
 			return stats.albumData[i];
 		}
 	}
@@ -194,7 +194,7 @@ function getAlbumData(name, artist) {
 
 function getArtistData(name) {
 	for (var i = 0; i < stats.artistData.length; i++) {
-		if (stats.artistData[i].name == name) {
+		if (stats.artistData[i].name.toUpperCase() == name.toUpperCase()) {
 			return stats.artistData[i];
 		}
 	}
@@ -263,7 +263,7 @@ function isFiltered(thing) {
 
 function filterTrackName(name) {
 	if (normalizeVersion) {
-		return name.replace(/\-?\s?\(?(\d\d\d\d)?\s?Remaster(ed)?\s?(Version)?(\d\d\d\d)?\)?/g, "");
+		return name.replace(/\s?\-?\s?\(?(\d\d\d\d)?\s?Remaster(ed)?\s?(Version)?(\d\d\d\d)?\)?/g, "");
 	} else {
 		return name;
 	}
@@ -271,7 +271,15 @@ function filterTrackName(name) {
 
 function filterAlbumName(name) {
 	if (normalizeVersion) {
-		return name.replace(/\((Deluxe)?\s?(\d\d\d\d)?\s?Remaster(ed)?\s?(Edition|Version)?\)/g, "").replace(/\(?Deluxe Edition\)?/g, "");
+		var nmStr = name;
+		nmStr = nmStr.replace(/\s?\[?\(?((Deluxe)|(Expanded))?\s?\&?(\d\d\d\d)?\s?Remaster(ed)?\s?(Edition|Version)?\]?\)?/g, "");
+		nmStr = nmStr.replace(/(\(?Deluxe Edition\)?)|(\(?Expanded Edition\)?)|(\(?Deluxe Version\)?)/g, "");
+		nmStr = nmStr.replace(/- Anniversary Edition/g, "");
+		nmStr = nmStr.replace(/\(?Deluxe Box Set\)?/g, "");
+		nmStr = nmStr.replace(/\(?Bonus Track Version\)?/g, "");
+		nmStr = nmStr.replace(/\(Deluxe\)/g, "");
+		nmStr = nmStr.replace(/\(U.S. Version\)/g, "");
+		return nmStr;
 	} else {
 		return name;
 	}
