@@ -28,6 +28,11 @@ function FilteredStats() {
 var normalizeVersion = true;
 
 function getInfo(accessToken) {
+	var normalizeVersionParam = getParam("normalizeVersion");
+	if (normalizeVersionParam != undefined) {
+		normalizeVersion = normalizeVersionParam;
+	}
+	console.log("normalizeVersion=" + normalizeVersion);
 	$.ajax({
 		url: 'https://api.spotify.com/v1/me',
 		headers: {
@@ -279,6 +284,7 @@ function filterAlbumName(name) {
 		nmStr = nmStr.replace(/\(?Bonus Track Version\)?/g, "");
 		nmStr = nmStr.replace(/\(Deluxe\)/g, "");
 		nmStr = nmStr.replace(/\(U.S. Version\)/g, "");
+		nmStr = nmStr.replace(/\(?\d\d\d?(th)?\s?Anniversary\)?/, "");
 		return nmStr;
 	} else {
 		return name;
