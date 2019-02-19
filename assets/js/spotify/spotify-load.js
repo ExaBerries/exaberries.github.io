@@ -157,7 +157,6 @@ function processTrack(accessToken, track, source) {
 	var trackName = filterTrackName(track.name);
 	var trackData = getTrackData(trackName, albumName, track.artists[0].name);
 	var containsTrack = typeof(trackData) != "undefined";
-	console.log(trackName, albumName, containsTrack, trackData, albumData);
 	if (!containsTrack) {
 		stats.trackData[currentTrackID++] = {
 			name: trackName,
@@ -184,7 +183,6 @@ function getTrackData(name, album, artist) {
 	for (var i = 0; i < stats.trackData.length; i++) {
 		for (var j = 0; j < stats.albumData.length; j++) {
 			if (stats.trackData[i].name.toUpperCase() == name.toUpperCase() && stats.albumData[j].name.toUpperCase() == album.toUpperCase() && $.inArray(i, stats.albumData[j].songs) != -1 && $.inArray(artist, stats.trackData[i].artists) != -1 && $.inArray(artist, stats.albumData[j].artists) != -1) {
-				console.log(name, stats.trackData[i], stats.albumData[j]);
 				return stats.trackData[i];
 			}
 		}
