@@ -135,7 +135,8 @@ function processTrack(accessToken, track, source) {
 		}
 	}
 	var albumName = filterAlbumName(track.album.name);
-	var containsAlbum = (typeof(getAlbumData(albumName, track.artists[0].name)) != "undefined");
+	var albumData = getAlbumData(albumName, track.artists[0].name);
+	var containsAlbum = typeof(albumData) != "undefined";
 	if (!containsAlbum) {
 		stats.albumData[currentAlbumID++] = {
 			name: albumName,
@@ -143,17 +144,20 @@ function processTrack(accessToken, track, source) {
 			imgURL: track.album.images[0].url,
 			artists: artists,
 			sources: [source],
-			songs: [currentTrackID],
+			songs: [],
 		};
+		albumData = stats.albumData[currentAlbumID - 1];
 		stats.albumCount++;
 		for (var i = 0; i < artists.length; i++) {
 			getArtistData(artists[i]).albums.push(currentAlbumID - 1);
 		}
 	} else {
-		getAlbumData(albumName, track.artists[0].name).sources.push(source);
+		albumData.sources.push(source);
 	}
 	var trackName = filterTrackName(track.name);
-	var containsTrack = (typeof(getTrackData(trackName, albumName, track.artists[0].name)) != "undefined");
+	var trackData = getTrackData(trackName, albumName, track.artists[0].name);
+	var containsTrack = typeof(trackData) != "undefined";
+	console.log(trackName, albumName, containsTrack, trackData, albumData);
 	if (!containsTrack) {
 		stats.trackData[currentTrackID++] = {
 			name: trackName,
@@ -167,20 +171,20 @@ function processTrack(accessToken, track, source) {
 		} else if (year > stats.maxYear) {
 			stats.maxYear = year;
 		}
-		var albumData = getAlbumData(albumName, track.artists[0].name);
 		if ($.inArray(currentTrackID - 1, albumData.songs) == -1) {
 			albumData.songs.push(currentTrackID - 1);
 		}
 		stats.songCount++;
 	} else {
-		getTrackData(trackName, albumName, track.artists[0].name).sources.push(source);
+		trackData.sources.push(source);
 	}
 }
 
 function getTrackData(name, album, artist) {
 	for (var i = 0; i < stats.trackData.length; i++) {
 		for (var j = 0; j < stats.albumData.length; j++) {
-			if (stats.trackData[i].name.toUpperCase() == name.toUpperCase() && stats.albumData[j].name.toUpperCase() == album.toUpperCase() && $.inArray(artist, stats.trackData[i].artists) != -1 && $.inArray(artist, stats.albumData[j].artists) != -1) {
+			if (stats.trackData[i].name.toUpperCase() == name.toUpperCase() && stats.albumData[j].name.toUpperCase() == album.toUpperCase() && $.inArray(i, stats.albumData[j].songs) != -1 && $.inArray(artist, stats.trackData[i].artists) != -1 && $.inArray(artist, stats.albumData[j].artists) != -1) {
+				console.log(name, stats.trackData[i], stats.albumData[j]);
 				return stats.trackData[i];
 			}
 		}
