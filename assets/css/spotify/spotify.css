@@ -36,6 +36,8 @@ body {
 	margin-left: 0;
 	left: 0;
 	padding-left: 0;
+	overflow: auto;
+	height: 100%;
 }
 
 #filter-songs ul li {
@@ -46,7 +48,7 @@ body {
 
 #filter-songs ul li button {
 	margin: 2%;
-	width: 100%;
+	width: 98%;
 }
 
 #filter-songs h2 {
