@@ -67,6 +67,9 @@ function processLibrary(accessToken, numSearched) {
 			if (numSearched < response.total) {
 				processLibrary(accessToken, numSearched);
 			}
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
 		}
 	});
 }
@@ -83,6 +86,9 @@ function processPlaylists(accessToken, usrID) {
 				processPlaylistTracks(accessToken, playlistID, 0, response.items[i].name);
 				createFilterButton(response.items[i].name);
 			}
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
 		}
 	});
 }
@@ -103,6 +109,9 @@ function processPlaylistTracks(accessToken, playlistID, numSearched, source) {
 			if (numSearched < response.total) {
 				processPlaylistTracks(accessToken, playlistID, numSearched, source);
 			}
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
 		}
 	});
 }
@@ -130,6 +139,9 @@ function processTrack(accessToken, track, source) {
 					var artistData = getArtistData(response.name);
 					artistData.genres = response.genres;
 					artistData.imgURL = response.images[0];
+				},
+				error: function(xhr, status, error) {
+					console.log(xhr, status, error);
 				}
 			});
 		}

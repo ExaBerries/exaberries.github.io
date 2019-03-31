@@ -18,6 +18,11 @@
 	margin: 0;
 }
 
+#chronological-graph-buttons {
+	text-align: center;
+	margin: 0.8em;
+}
+
 #songslist {
 	display: grid;
 	grid-template-columns: auto auto auto auto;

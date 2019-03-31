@@ -1,5 +1,6 @@
-var chart = {};
+var chart = undefined;
 var currentListSongsYear = -1;
+var chronoChartSort = false;
 
 function run() {
 	if (hasParam("access_token")) {
@@ -112,21 +113,69 @@ function renderSongChart() {
 	var chartData = [];
 	var chartBackgroundColors = [];
 	var chartBorderColors = [];
-	for (var i = 0; i <= filteredStats.maxYear - filteredStats.minYear; i++) {
-		chartLabels[i] = filteredStats.minYear + i;
-		chartBackgroundColors[i] = 'rgba(13, 169, 68, 0.8)';
-		chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
-		chartData[i] = 0;
-	}
-	for (var i = 0; i < filteredStats.songs.length; i++) {
-		var id = filteredStats.songs[i];
-		chartData[stats.trackData[id].year - filteredStats.minYear]++;
+	if (chronoChartSort == false) {
+		for (var i = 0; i <= filteredStats.maxYear - filteredStats.minYear; i++) {
+			chartLabels[i] = filteredStats.minYear + i;
+			chartBackgroundColors[i] = 'rgba(13, 169, 68, 0.8)';
+			chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
+			chartData[i] = 0;
+		}
+		for (var i = 0; i < filteredStats.songs.length; i++) {
+			var id = filteredStats.songs[i];
+			chartData[stats.trackData[id].year - filteredStats.minYear]++;
+		}
+	} else {
+		var chartDataLabel = [];
+		for (var i = 0; i <= filteredStats.maxYear - filteredStats.minYear; i++) {
+			chartBackgroundColors[i] = 'rgba(13, 169, 68, 0.8)';
+			chartBorderColors[i] = 'rgba(13, 169, 68, 0.8)';
+			chartDataLabel[i] = {
+				year: filteredStats.minYear + i,
+				count: 0
+			};
+		}
+		for (var i = 0; i < filteredStats.songs.length; i++) {
+			var id = filteredStats.songs[i];
+			chartDataLabel[stats.trackData[id].year - filteredStats.minYear].count++;
+		}
+		chartDataLabel.sort(function(a, b) {
+			return b.count - a.count;
+		});
+		var j = 0;
+		for (var i = 0; i < chartDataLabel.length; i++) {
+			if (chartDataLabel[i].count == 0) {
+				continue;
+			}
+			chartData[j] = chartDataLabel[i].count;
+			chartLabels[j] = chartDataLabel[i].year;
+			j++;
+		}
 	}
 	chart.data.labels = chartLabels;
 	chart.data.datasets[0].data = chartData;
 	chart.data.datasets[0].backgroundColor = chartBorderColors;
 	chart.data.datasets[0].borderColor = chartBackgroundColors;
 	chart.update();
+}
+
+function setChronoSort(sort) {
+	chronoChartSort = sort;
+	var btn = $("#chronological-graph-button");
+	btn.off('click');
+	if (sort == true) {
+		btn.text("sort by year");
+		btn.click(function() {
+			setChronoSort(false);
+		});
+	} else {
+		btn.text("sort by song count");
+		btn.click(function() {
+			setChronoSort(true);
+		});
+	}
+	if (chart != undefined) {
+		renderSongChart();
+	}
 }
 
 function listSongs(year) {
