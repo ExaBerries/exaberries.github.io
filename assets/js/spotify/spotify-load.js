@@ -27,6 +27,23 @@ function FilteredStats() {
 
 var normalizeVersion = true;
 
+function spotifyRequest(url, accessToken, fn) {
+	$.ajax({
+		url: url,
+		headers: {
+			'Authorization': 'Bearer ' + accessToken
+		},
+		success: fn,
+		error: function(xhr, status, error) {
+			if (xhr.status == 429) {
+				setTimeout(function () {
+					spotifyRequest(url, accessToken, fn);
+				}, xhr.getResponseHeader("Retry-After") * 1000);
+			}
+		}
+	});
+}
+
 function getInfo(accessToken) {
 	var normalizeVersionParam = getParam("normalizeVersion");
 	if (normalizeVersionParam != undefined) {
@@ -52,66 +69,39 @@ function getInfo(accessToken) {
 }
 
 function processLibrary(accessToken, numSearched) {
-	$.ajax({
-		url: 'https://api.spotify.com/v1/me/tracks?limit=20&offset=' + numSearched,
-		headers: {
-			'Authorization': 'Bearer ' + accessToken,
-		},
-		success: function(response) {
-			for (var i = 0; i < response.items.length; i++) {
-				processTrack(accessToken, response.items[i].track, "Library");
-				numSearched++;
-			}
-			refilter();
-			render();
-			if (numSearched < response.total) {
-				processLibrary(accessToken, numSearched);
-			}
-		},
-		error: function(xhr, status, error) {
-			console.log(xhr, status, error);
+	spotifyRequest('https://api.spotify.com/v1/me/tracks?limit=20&offset=' + numSearched, accessToken, function (response) {
+		for (var i = 0; i < response.items.length; i++) {
+			processTrack(accessToken, response.items[i].track, "Library");
+			numSearched++;
+		}
+		refilter();
+		render();
+		if (numSearched < response.total) {
+			processLibrary(accessToken, numSearched);
 		}
 	});
 }
 
 function processPlaylists(accessToken, usrID) {
-	$.ajax({
-		url: 'https://api.spotify.com/v1/me/playlists',
-		headers: {
-			'Authorization': 'Bearer ' + accessToken
-		},
-		success: function(response) {
-			for (var i = 0; i < response.items.length; i++) {
-				var playlistID = response.items[i].id;
-				processPlaylistTracks(accessToken, playlistID, 0, response.items[i].name);
-				createFilterButton(response.items[i].name);
-			}
-		},
-		error: function(xhr, status, error) {
-			console.log(xhr, status, error);
+	spotifyRequest('https://api.spotify.com/v1/me/playlists', accessToken, function (response) {
+		for (var i = 0; i < response.items.length; i++) {
+			var playlistID = response.items[i].id;
+			processPlaylistTracks(accessToken, playlistID, 0, response.items[i].name);
+			createFilterButton(response.items[i].name);
 		}
 	});
 }
 
 function processPlaylistTracks(accessToken, playlistID, numSearched, source) {
-	$.ajax({
-		url: 'https://api.spotify.com/v1/playlists/' + playlistID + '/tracks',
-		headers: {
-			'Authorization': 'Bearer ' + accessToken
-		},
-		success: function(response) {
-			for (var i = 0; i < response.items.length; i++) {
-				processTrack(accessToken, response.items[i].track, source);
-				numSearched++;
-			}
-			refilter();
-			render();
-			if (numSearched < response.total) {
-				processPlaylistTracks(accessToken, playlistID, numSearched, source);
-			}
-		},
-		error: function(xhr, status, error) {
-			console.log(xhr, status, error);
+	spotifyRequest('https://api.spotify.com/v1/playlists/' + playlistID + '/tracks', accessToken, function (response) {
+		for (var i = 0; i < response.items.length; i++) {
+			processTrack(accessToken, response.items[i].track, source);
+			numSearched++;
+		}
+		refilter();
+		render();
+		if (numSearched < response.total) {
+			processPlaylistTracks(accessToken, playlistID, numSearched, source);
 		}
 	});
 }
@@ -130,19 +120,10 @@ function processTrack(accessToken, track, source) {
 				albums: []
 			};
 			stats.artistCount++;
-			$.ajax({
-				url: 'https://api.spotify.com/v1/artists/' + track.artists[i].id,
-				headers: {
-					'Authorization': 'Bearer ' + accessToken
-				},
-				success: function(response) {
-					var artistData = getArtistData(response.name);
-					artistData.genres = response.genres;
-					artistData.imgURL = response.images[0];
-				},
-				error: function(xhr, status, error) {
-					console.log(xhr, status, error);
-				}
+			spotifyRequest('https://api.spotify.com/v1/artists/' + track.artists[i].id, accessToken, function (response) {
+				var artistData = getArtistData(response.name);
+				artistData.genres = response.genres;
+				artistData.imgURL = response.images[0];
 			});
 		}
 	}
