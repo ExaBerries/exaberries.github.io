@@ -272,15 +272,7 @@ function filterTrackName(name) {
 function filterAlbumName(name) {
 	if (normalizeVersion) {
 		var nmStr = name;
-		nmStr = nmStr.replace(/\s?\[?\(?((Deluxe)|(Expanded))?\s?\&?(\d\d\d\d)?\s?Remaster(ed)?\s?(Edition|Version)?\]?\)?/g, "");
-		nmStr = nmStr.replace(/\(?(Deluxe|Expanded|Anniversary|Standard) Edition\)?/g, "");
-		nmStr = nmStr.replace(/- $/g, "");
-		nmStr = nmStr.replace(/\(Super Deluxe\)/g, "");
-		nmStr = nmStr.replace(/\(?Deluxe Box Set\)?/g, "");
-		nmStr = nmStr.replace(/\(?Bonus Track Version\)?/g, "");
-		nmStr = nmStr.replace(/\(Deluxe\)/g, "");
-		nmStr = nmStr.replace(/\(((U.S.)|International) Version\)/g, "");
-		nmStr = nmStr.replace(/\(?\d\d\d?(th)?\s?Anniversary\)?/, "");
+		nmStr = nmStr.replace(/\([\sa-zA-Z\d.]*(Remaster(ed)?|Edition|Version|Anniversary)[\sa-zA-Z\d.]*\)/g, "")
 		return nmStr;
 	} else {
 		return name;
