@@ -271,9 +271,7 @@ function filterTrackName(name) {
 
 function filterAlbumName(name) {
 	if (normalizeVersion) {
-		var nmStr = name;
-		nmStr = nmStr.replace(/\([\sa-zA-Z\d.]*(Remaster(ed)?|Edition|Version|Anniversary)[\sa-zA-Z\d.]*\)/g, "")
-		return nmStr;
+		return name.replace(/\s\([\sa-zA-Z\d.&]*(Remaster(ed)?|Edition|Version|Anniversary)[\sa-zA-Z\d.]*\)/g, "");
 	} else {
 		return name;
 	}
