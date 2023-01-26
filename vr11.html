@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+	<head>
+		<title>ExaBerries - vr11</title>
+		<link rel="stylesheet" href="assets/css/stylesheet.css">
+		<link rel="stylesheet" href="assets/css/index.css">
+		<style>
+			td {
+				font-size: 1.2em;
+				text-align: center;
+			}
+			h5 {
+				font-size: 1.4em;
+			}
+			h4 {
+				font-size: 1.3em;
+			}
+			input {
+				transform: scale(4);
+				margin: 4em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="background"></div>
+		<div class="content">
+			<h1>VR11</h1>
+			<table>
+				<tr>
+					<td><h3>7</h3></td>
+					<td><h3>6</h3></td>
+					<td><h3>5</h3></td>
+					<td><h3>4</h3></td>
+					<td><h3>3</h3></td>
+					<td><h3>2</h3></td>
+					<td><h3>1</h3></td>
+					<td><h3>0</h3></td>
+				</tr>
+				<tr>
+					<td>800 mV</td>
+					<td>400 mV</td>
+					<td>200 mV</td>
+					<td>100 mV</td>
+					<td>50 mV</td>
+					<td>25 mV</td>
+					<td>12.5 mV</td>
+					<td>6.25 mV</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" id="vid7" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid6" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid5" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid4" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid3" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid2" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid1" onclick="calc()"/></td>
+					<td><input type="checkbox" id="vid0" onclick="calc()"/></td>
+				</tr>
+			</table>
+			<h2 id="output"></h2>
+			<script>
+				function calc() {
+					voltage = 1612.5
+					voltage -= document.getElementById("vid0").checked * 6.25;
+					voltage -= document.getElementById("vid1").checked * 12.5;
+					voltage -= document.getElementById("vid2").checked * 25;
+					voltage -= document.getElementById("vid3").checked * 50;
+					voltage -= document.getElementById("vid4").checked * 100;
+					voltage -= document.getElementById("vid5").checked * 200;
+					voltage -= document.getElementById("vid6").checked * 400;
+					voltage -= document.getElementById("vid7").checked * 800;
+					voltage /= 1000
+					if (voltage > 1.6 || voltage < 0.5) {
+						voltage = "off"
+					}
+					document.getElementById("output").innerHTML = voltage
+				}
+				calc()
+			</script>
+		</div>
+	</body>
+</html>
