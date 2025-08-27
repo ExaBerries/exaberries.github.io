@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+	<head>
+		<title>ExaBerries - feedback mod calc</title>
+	</head>
+	<body>
+		<div class="background"></div>
+		<div class="content">
+			<h1>Feedback mod calc</h1>
+			<div style="float: left; margin: 0; width: 40%">
+				<h2>determine R1/R2</h2>
+				<h3>inputs</h3>
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								<label for="Vout">Vout</label>
+							</td>
+							<td>
+								<input type="number" id="Vout-val" value="1.5" step="0.001" min="0.001" max="99.999" onclick="calc_R1R2()"/>
+							</td>
+							<td>
+								V
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="Vref">Vref</label>
+							</td>
+							<td>
+								<input type="number" id="Vref" value="0.796" step="0.001" min="0.001" max="99.999" onclick="calc_R1R2()"/>
+							</td>
+							<td>
+								V
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="Rfbgnd">Rfb->gnd</label>
+							</td>
+							<td>
+								<input type="number" id="Rfbgnd" value="5.715" step="0.001" min="0.001" max="999999.999" onclick="calc_R1R2()"/>
+							</td>
+							<td>
+								<select name="Rfbgnd-unit" id="Rfbgnd-unit" onclick="calc_R1R2()">
+									<option value="0">Ω</option>
+									<option value="3" selected="selected">kΩ</option>
+									<option value="6">MΩ</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="Rrail">Rrail</label>
+							</td>
+							<td>
+								<input type="number" id="Rrail" value="40" step="0.001" min="0.001" max="999999.999" onclick="calc_R1R2()"/>
+							</td>
+							<td>
+								<select name="Rrail-unit" id="Rrail-unit" onclick="calc_R1R2()">
+									<option value="-3">mΩ</option>
+									<option value="0" selected="selected">Ω</option>
+									<option value="3">kΩ</option>
+									<option value="6">MΩ</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<h3>values</h3>
+				<table>
+					<tr>
+						<td>R1</td>
+						<td id="R1-calc" style="text-align: right"></td>
+						<td id="R1-calc-unit"></td>
+					</tr>
+					<tr>
+						<td>R2</td>
+						<td id="R2-calc" style="text-align: right"></td>
+						<td id="R2-calc-unit"></td>
+					</tr>
+				</table>
+				<br/>
+				<button onclick="copy_R1R2()">copy to fb mod side =></button>
+			</div>
+			<div style="float: left; margin: 0; width: 40%">
+				<h2>calc fb mod</h2>
+				<h3>inputs</h3>
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								<label for="R1">R1</label>
+							</td>
+							<td>
+								<input type="number" id="R1" value="7.2" step="0.001" min="0.001" max="999999.999" onclick="calc_fb_mod()"/>
+							</td>
+							<td>
+								<select name="R1-unit" id="R1-unit" onclick="calc_fb_mod()">
+									<option value="0">Ω</option>
+									<option value="3" selected="selected">kΩ</option>
+									<option value="6">MΩ</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="R2">R2</label>
+							</td>
+							<td>
+								<input type="number" id="R2" value="14.4" step="0.001" min="0.001" max="999999.999" onclick="calc_fb_mod()"/>
+							</td>
+							<td>
+								<select name="R2-unit" id="R2-unit" onclick="calc_fb_mod()">
+									<option value="0">Ω</option>
+									<option value="3" selected="selected">kΩ</option>
+									<option value="6">MΩ</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="Vmin">Vmin</label>
+							</td>
+							<td>
+								<input type="number" id="Vmin" value="1.55" step="0.001" min="0.001" max="99.999" onclick="calc_fb_mod()"/>
+							</td>
+							<td>
+								V
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label for="Vmax">Vmax</label>
+							</td>
+							<td>
+								<input type="number" id="Vmax" value="1.65" step="0.001" min="0.001" max="99.999" onclick="calc_fb_mod()"/>
+							</td>
+							<td>
+								V
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<h3>values</h3>
+				<table>
+					<tr>
+						<td>Rpot</td>
+						<td id="Rpot-calc" style="text-align: right"></td>
+						<td id="Rpot-calc-unit"></td>
+					</tr>
+					<tr>
+						<td>Rseries</td>
+						<td id="Rseries-calc" style="text-align: right"></td>
+						<td id="Rseries-calc-unit"></td>
+					</tr>
+					<tr>
+						<td>Vmin</td>
+						<td id="Vmin-calc" style="text-align: right"></td>
+						<td>V</td>
+					</tr>
+					<tr>
+						<td>Vmax</td>
+						<td id="Vmax-calc" style="text-align: right"></td>
+						<td>V</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<script>
+			// very hacked together - yes I know its a mess
+
+			// round resistance to E24 value
+			// r should be in ohms
+			function round_R(r) {
+				const E24 = [1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1, 10.0];
+				if (r === 0.0) {
+					return r;
+				}
+
+				// basically convert to scientific notation
+				exponent = 0;
+				res = r;
+
+				if (res > 10) {
+					while (res > 9.999) {
+						res /= 10;
+						exponent++;
+					}
+				} else if (res < 1) {
+					while (res < 1) {
+						res *= 10;
+						exponent --;
+					}
+				}
+
+				new_res = 0;
+				i = 0;
+				while (new_res <= res) {
+					new_res = E24[i];
+					i++;
+				}
+
+				// if smaller % change to previous E24 use that, otherwise we'd always round up
+				if (i > 1) {
+					const percent_round_up = Math.abs(new_res - res) / res;
+					const percent_round_down = Math.abs(E24[i - 2] - res) / res;
+					if (percent_round_down < percent_round_up) {
+						new_res = E24[i - 2];
+					}
+				}
+
+				console.log("rounded ", r, " to ", new_res);
+
+				return new_res * Math.pow(10, exponent);
+			}
+
+			// format resistance into more human readable strings
+			// first string is number with 3 decimal places
+			// second string is the unit, mΩ, Ω, kΩ, MΩ
+			// r should be resistance as a float, in ohms
+			function display_R_strs(r) {
+				resistance = r;
+				unit = "";
+				if (resistance < 1) {
+					resistance *= 1000;
+					unit = "m";
+				} else {
+					if (resistance > 1000) {
+						resistance /= 1000;
+						unit = "k";
+					}
+					if (resistance > 1000) {
+						resistance /= 1000;
+						unit = "M";
+					}
+				}
+				return [resistance.toFixed(3), unit + "Ω"];
+			}
+
+			// calculate output voltage when modding, given vref, r1, r2, and parallel resistance rmod
+			// all inputs should be a float, and either in volts or ohms for the respective values
+			function calc_V_modded(v_ref, r1, r2, r_mod) {
+				return v_ref * (1 + r1 / (1 / ((1 / r2) + (1 / r_mod))));
+			}
+
+			// calculate feedback mod values
+			function calc_fb_mod() {
+				// get values from inputs
+				const r1 = parseFloat(document.getElementById("R1").value) * Math.pow(10, parseInt(document.getElementById("R1-unit").value));
+				const r2 = parseFloat(document.getElementById("R2").value) * Math.pow(10, parseInt(document.getElementById("R2-unit").value));
+
+				const V_out = parseFloat(document.getElementById("Vout-val").value);
+				const V_ref = parseFloat(document.getElementById("Vref").value);
+				V_min = parseFloat(document.getElementById("Vmin").value);
+				if (V_min < V_out) {
+					V_min = V_out * 1.01;
+				}
+				V_max = parseFloat(document.getElementById("Vmax").value);
+				if (V_max < V_min) {
+					V_max = V_min * 1.01;
+				}
+
+				const r_pot_calc = round_R(1 / ((((V_min / V_ref) - 1) / r1) - (1 / r2)));
+				const [r_pot_calc_rounded, r_pot_calc_unit] = display_R_strs(r_pot_calc);
+				document.getElementById("Rpot-calc").innerHTML = r_pot_calc_rounded;
+				document.getElementById("Rpot-calc-unit").innerHTML = r_pot_calc_unit;
+
+				const r_series_calc = round_R(1 / ((((V_max / V_ref) - 1) / r1) - (1 / r2)));
+				const [r_series_calc_rounded, r_series_calc_unit] = display_R_strs(r_series_calc);
+				document.getElementById("Rseries-calc").innerHTML = r_series_calc_rounded;
+				document.getElementById("Rseries-calc-unit").innerHTML = r_series_calc_unit;
+
+				document.getElementById("Vmin-calc").innerHTML = calc_V_modded(V_ref, r1, r2, r_series_calc + r_pot_calc).toFixed(3);
+				document.getElementById("Vmax-calc").innerHTML = calc_V_modded(V_ref, r1, r2, r_series_calc).toFixed(3);
+			}
+
+			// copy calculated R1 and R2 values to feedback mod side
+			function copy_R1R2() {
+				document.getElementById("R1").value = round_R(document.getElementById("R1-calc").innerHTML);
+				document.getElementById("R2").value = round_R(document.getElementById("R2-calc").innerHTML);
+			}
+
+			// calculate R1 and R2
+			function calc_R1R2() {
+				// get values from inputs
+				const R_fb_gnd = parseFloat(document.getElementById("Rfbgnd").value) * Math.pow(10, parseInt(document.getElementById("Rfbgnd-unit").value));
+				const R_rail = parseFloat(document.getElementById("Rrail").value) * Math.pow(10, parseInt(document.getElementById("Rrail-unit").value));
+				const V_out = parseFloat(document.getElementById("Vout-val").value);
+				const V_ref = parseFloat(document.getElementById("Vref").value);
+				
+				// calculate R1/R2 and show in output table
+				//const r1_calc = R_fb_gnd * V_out / V_ref;
+				// to take into account R_rail, quadradic formula, above is simplier but less accurate
+				const V_ratio = V_out / V_ref;
+				const a = 1;
+				const b = V_ratio * (R_rail - R_fb_gnd) - R_rail;
+				const c = R_fb_gnd * R_rail * (V_ratio - 1);
+				const r1_calc = -b + Math.sqrt(Math.pow(b, 2) -4 * a * c) / (2 * a);
+
+				const [r1_calc_rounded, r1_calc_unit] = display_R_strs(r1_calc);
+				document.getElementById("R1-calc").innerHTML = r1_calc_rounded;
+				document.getElementById("R1-calc-unit").innerHTML = r1_calc_unit;
+				
+				const r2_calc = r1_calc / (V_ratio - 1);
+				const [r2_calc_rounded, r2_calc_unit] = display_R_strs(r2_calc);
+				document.getElementById("R2-calc").innerHTML = r2_calc_rounded;
+				document.getElementById("R2-calc-unit").innerHTML = r2_calc_unit;
+			}
+
+			// run by default
+			calc_R1R2()
+			copy_R1R2()
+			calc_fb_mod()
+		</script>
+	</body>
+</html>
