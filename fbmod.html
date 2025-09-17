@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title>ExaBerries - feedback mod calc</title>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	</head>
 	<body>
 		<div class="background"></div>
@@ -166,9 +167,96 @@
 					</tr>
 				</table>
 			</div>
+			<div>
+				<canvas id="chart"></canvas>
+			</div>
 		</div>
 		<script>
 			// very hacked together - yes I know its a mess
+			
+			var canvas = document.getElementById("chart")
+			
+			// create chart
+			var vmod_chart = new Chart(canvas, {
+				type: "line",
+				data: {
+					datasets: [
+						{
+							label: "V",
+							data: [],
+							borderColor: "rgba(255, 0 , 255, 1)",
+							fill: false,
+							tension: 0.2
+						}
+					],
+					labels: [0, 100]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						x: {
+							title: {
+								display: true,
+								text: "Potentiometer Resistance (Ω)"
+							}
+						},
+						y: {
+							title: {
+								display: true,
+								text: "Output voltage calculated from Potentiometer resisance and series resistance (V)"
+							}
+						}
+					},
+					plugins: {
+						legend: {
+							display: false
+						}
+					}
+				}
+			});
+			
+			// given a string of the unit for a resistor, return a float that converts to ohms when multiplied 
+			// ex: "kΩ" => 1000.0, "MΩ" => 1000000.0
+			function res_unit_str_to_float(unit_str) {
+				if (unit_str == "mΩ") {
+					return 1.0 / 1000.0;
+				} else if (unit_str == "kΩ") {
+					return 1000.0;
+				} else if (num_str == "MΩ") {
+					return 1000.0 * 1000.0;
+				}
+				
+				return 1.0; // just in ohms
+			}
+			
+			// calculate output voltage when modding, given vref, r1, r2, and parallel resistance rmod
+			// all inputs should be a float, and either in volts or ohms for the respective values
+			function calc_V_modded(v_ref, r1, r2, r_mod) {
+				return v_ref * (1 + r1 / (1 / ((1 / r2) + (1 / r_mod))));
+			}
+			
+			// update data in chart according to new values
+			function update_chart(r1, r2, vref, rpot, rseries) {
+				console.log("updating chart with ", r1, r2, vref, rpot, rseries);
+				
+				var data = vmod_chart.data;
+				
+				const NUM_XVALS = 20;
+				data.labels = [];
+				for (var i = 0; i <= NUM_XVALS; i++) {
+					data.labels.push(rpot * i / NUM_XVALS);
+				}
+				
+				data.datasets[0].data = [];
+				
+				// only one dataset
+				for (var i = 0; i < data.labels.length; i++) {
+					// fill data according to volt mod
+					data.datasets[0].data.push(calc_V_modded(vref, r1, r2, data.labels[i] + rseries));
+				}
+				
+				vmod_chart.update();
+			}
 
 			// round resistance to E24 value
 			// r should be in ohms
@@ -179,8 +267,8 @@
 				}
 
 				// basically convert to scientific notation
-				exponent = 0;
-				res = r;
+				var exponent = 0;
+				var res = r;
 
 				if (res > 10) {
 					while (res > 9.999) {
@@ -194,8 +282,8 @@
 					}
 				}
 
-				new_res = 0;
-				i = 0;
+				var new_res = 0;
+				var i = 0;
 				while (new_res <= res) {
 					new_res = E24[i];
 					i++;
@@ -220,8 +308,8 @@
 			// second string is the unit, mΩ, Ω, kΩ, MΩ
 			// r should be resistance as a float, in ohms
 			function display_R_strs(r) {
-				resistance = r;
-				unit = "";
+				var resistance = r;
+				var unit = "";
 				if (resistance < 1) {
 					resistance *= 1000;
 					unit = "m";
@@ -238,12 +326,6 @@
 				return [resistance.toFixed(3), unit + "Ω"];
 			}
 
-			// calculate output voltage when modding, given vref, r1, r2, and parallel resistance rmod
-			// all inputs should be a float, and either in volts or ohms for the respective values
-			function calc_V_modded(v_ref, r1, r2, r_mod) {
-				return v_ref * (1 + r1 / (1 / ((1 / r2) + (1 / r_mod))));
-			}
-
 			// calculate feedback mod values
 			function calc_fb_mod() {
 				// get values from inputs
@@ -252,11 +334,11 @@
 
 				const V_out = parseFloat(document.getElementById("Vout-val").value);
 				const V_ref = parseFloat(document.getElementById("Vref").value);
-				V_min = parseFloat(document.getElementById("Vmin").value);
+				var V_min = parseFloat(document.getElementById("Vmin").value);
 				if (V_min < V_out) {
 					V_min = V_out * 1.01;
 				}
-				V_max = parseFloat(document.getElementById("Vmax").value);
+				var V_max = parseFloat(document.getElementById("Vmax").value);
 				if (V_max < V_min) {
 					V_max = V_min * 1.01;
 				}
@@ -273,12 +355,16 @@
 
 				document.getElementById("Vmin-calc").innerHTML = calc_V_modded(V_ref, r1, r2, r_series_calc + r_pot_calc).toFixed(3);
 				document.getElementById("Vmax-calc").innerHTML = calc_V_modded(V_ref, r1, r2, r_series_calc).toFixed(3);
+				
+				console.log("new Rpot/Rseries", r_pot_calc, r_series_calc);
+				
+				update_chart(r1, r2, V_ref, r_pot_calc, r_series_calc);
 			}
 
 			// copy calculated R1 and R2 values to feedback mod side
 			function copy_R1R2() {
 				document.getElementById("R1").value = round_R(document.getElementById("R1-calc").innerHTML);
-				document.getElementById("R2").value = round_R(document.getElementById("R2-calc").innerHTML);
+				document.getElementById("R2").value = round_R(document.getElementById("R2-calc").innerHTML)
 			}
 
 			// calculate R1 and R2
