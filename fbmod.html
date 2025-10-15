@@ -173,16 +173,37 @@
 		</div>
 		<script>
 			// very hacked together - yes I know its a mess
-			
-			document.getElementById("Vout-val").addEventListener("input", calc_R1R2);
-			document.getElementById("Vref").addEventListener("input", calc_R1R2);
-			document.getElementById("Rfbgnd").addEventListener("input", calc_R1R2);
-			document.getElementById("Rrail").addEventListener("input", calc_R1R2);
 
-			document.getElementById("R1").addEventListener("input", calc_fb_mod);
-			document.getElementById("R2").addEventListener("input", calc_fb_mod);
-			document.getElementById("Vmin").addEventListener("input", calc_fb_mod);
-			document.getElementById("Vmax").addEventListener("input", calc_fb_mod);
+			// https://www.joshwcomeau.com/snippets/javascript/debounce/
+			const debounce = (callback, wait) => {
+				let timeoutId = null;
+
+				return (...args) => {
+					window.clearTimeout(timeoutId);
+
+					timeoutId = window.setTimeout(() => {
+						callback.apply(null, args);
+					}, wait);
+				};
+			}
+
+			const debounced_calc_R1R2 = debounce((event) => {
+				calc_R1R2();
+			}, 400);
+
+			const debounced_calc_fb_mod = debounce((event) => {
+				calc_fb_mod();
+			}, 400);
+
+			document.getElementById("Vout-val").addEventListener("input", debounced_calc_R1R2);
+			document.getElementById("Vref").addEventListener("input", debounced_calc_R1R2);
+			document.getElementById("Rfbgnd").addEventListener("input", debounced_calc_R1R2);
+			document.getElementById("Rrail").addEventListener("input", debounced_calc_R1R2);
+
+			document.getElementById("R1").addEventListener("input", debounced_calc_fb_mod);
+			document.getElementById("R2").addEventListener("input", debounced_calc_fb_mod);
+			document.getElementById("Vmin").addEventListener("input", debounced_calc_fb_mod);
+			document.getElementById("Vmax").addEventListener("input", debounced_calc_fb_mod);
 
 			var canvas = document.getElementById("chart");
 			
@@ -278,23 +299,31 @@
 					return r;
 				}
 
+				if (r < 0) {
+					return r;
+				}
+
+				console.log("rounding ", r);
+
 				// basically convert to scientific notation
-				var exponent = 0;
+				var exponent = 0.0;
 				var res = r;
 
-				if (res > 10) {
+				if (res > 10.0) {
 					while (res > 9.999) {
-						res /= 10;
+						res /= 10.0;
 						exponent++;
 					}
-				} else if (res < 1) {
-					while (res < 1) {
-						res *= 10;
-						exponent --;
+				} else if (res < 1.0) {
+					while (res < 1.0) {
+						res *= 10.0;
+						exponent--;
 					}
 				}
 
-				var new_res = 0;
+				console.log("round step1: ", res, "e", exponent);
+
+				var new_res = 0.0;
 				var i = 0;
 				while (new_res <= res) {
 					new_res = series[i];
@@ -310,7 +339,7 @@
 					}
 				}
 
-				console.log("rounded ", r, " to ", new_res);
+				console.log("rounded ", r, " to ", new_res * Math.pow(10, exponent));
 
 				return new_res * Math.pow(10, exponent);
 			}
@@ -355,6 +384,10 @@
 					V_max = V_min * 1.01;
 				}
 
+				if (r1 > ((V_min / V_ref) - 1) * r2) {
+					console.log("r1 too high");
+				}
+
 				const r_pot_calc = round_R(1 / ((((V_min / V_ref) - 1) / r1) - (1 / r2)), BOURNS_3296W);
 				const [r_pot_calc_rounded, r_pot_calc_unit] = display_R_strs(r_pot_calc);
 				document.getElementById("Rpot-calc").innerHTML = r_pot_calc_rounded;
@@ -389,8 +422,8 @@
 				const V_ref = parseFloat(document.getElementById("Vref").value);
 				
 				// calculate R1/R2 and show in output table
-				//const r1_calc = R_fb_gnd * V_out / V_ref;
-				// to take into account R_rail, quadradic formula, above is simplier but less accurate
+				// using the quadradic formula to take into account R_rail, below is a simplier solution but less accurate
+				// const r1_calc = R_fb_gnd * V_out / V_ref;
 				const V_ratio = V_out / V_ref;
 				const a = 1;
 				const b = V_ratio * (R_rail - R_fb_gnd) - R_rail;
